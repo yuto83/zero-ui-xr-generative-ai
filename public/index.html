@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero UI XR - Generative AI</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <section class="camera-card">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas" hidden></canvas>
+
+      <div class="status" id="status">カメラ準備中…</div>
+      <div class="hud">
+        <div class="hud-title">ZERO UI XR</div>
+        <div class="hud-sub">Generative AI Situation Understanding</div>
+      </div>
+
+      <div id="overlay" class="overlay hidden">
+        <div class="overlay-label">AI SUGGESTION</div>
+        <div id="uiTitle" class="overlay-title"></div>
+        <div id="uiBody" class="overlay-body"></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <button id="startButton">カメラを開始</button>
+      <label>
+        AI解析間隔
+        <select id="interval">
+          <option value="1000">1秒</option>
+          <option value="1500" selected>1.5秒</option>
+          <option value="2000">2秒</option>
+          <option value="3000">3秒</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="analysis">
+      <div class="analysis-header">
+        <h2>生成AIによる状況理解</h2>
+        <span id="confidence">--</span>
+      </div>
+
+      <div class="grid">
+        <div><span>SCENE</span><strong id="scene">--</strong></div>
+        <div><span>OBJECT</span><strong id="object">--</strong></div>
+        <div><span>ACTION</span><strong id="action">--</strong></div>
+        <div><span>INTENT</span><strong id="intent">--</strong></div>
+      </div>
+
+      <div class="evidence">
+        <span>EVIDENCE</span>
+        <ul id="evidence"><li>--</li></ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

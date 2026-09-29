@@ -1,0 +1,9 @@
+{
+  "name": "zero-ui-xr-generative-ai",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "openai": "^6.0.0"
+  }
+}
