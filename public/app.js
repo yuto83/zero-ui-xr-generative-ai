@@ -4,21 +4,30 @@ const startButton = document.getElementById("startButton");
 const statusEl = document.getElementById("status");
 const intervalSelect = document.getElementById("interval");
 
+const productEl = document.getElementById("product");
+const attentionEl = document.getElementById("attention");
 const sceneEl = document.getElementById("scene");
-const objectEl = document.getElementById("object");
 const actionEl = document.getElementById("action");
 const intentEl = document.getElementById("intent");
+const uiStateEl = document.getElementById("uiState");
 const confidenceEl = document.getElementById("confidence");
 const evidenceEl = document.getElementById("evidence");
 
 const overlay = document.getElementById("overlay");
 const uiTitle = document.getElementById("uiTitle");
-const uiBody = document.getElementById("uiBody");
+const uiSubtitle = document.getElementById("uiSubtitle");
+const nutritionBasis = document.getElementById("nutritionBasis");
+const nutritionEl = document.getElementById("nutrition");
+const recipesEl = document.getElementById("recipes");
+const uiTip = document.getElementById("uiTip");
+const focusMarker = document.getElementById("focusMarker");
 
 let stream = null;
 let timer = null;
 let busy = false;
 let previous = null;
+let lastProductId = "";
+let sameProductCount = 0;
 
 async function startCamera() {
   try {
@@ -58,13 +67,14 @@ function stopCamera() {
   video.srcObject = null;
   startButton.textContent = "カメラを開始";
   statusEl.textContent = "停止中";
+  hideOverlay();
 }
 
 async function analyzeFrame() {
   if (!stream || busy || video.readyState < 2) return;
 
   busy = true;
-  statusEl.textContent = "生成AIが状況を理解中…";
+  statusEl.textContent = "生成AIが商品への注目を推定中…";
 
   try {
     const maxWidth = 768;
@@ -75,7 +85,6 @@ async function analyzeFrame() {
     const ctx = canvas.getContext("2d", { alpha: false });
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // JPEG quality is intentionally moderate to reduce request size.
     const image = canvas.toDataURL("image/jpeg", 0.68);
 
     const response = await fetch("/api/analyze", {
@@ -89,7 +98,9 @@ async function analyzeFrame() {
 
     render(data);
     previous = data;
-    statusEl.textContent = "生成AIによる状況理解 完了";
+    statusEl.textContent = data.show_ui
+      ? "商品への注目を検知 / Zero UIを表示"
+      : "生成AIによる状況理解 完了";
   } catch (e) {
     console.error(e);
     statusEl.textContent = "AI解析エラー: " + e.message;
@@ -99,12 +110,16 @@ async function analyzeFrame() {
 }
 
 function render(data) {
+  const productName = data.product_name || "対象商品なし";
+  const attentionScore = Number(data.attention_score || 0);
+
+  productEl.textContent = productName;
+  attentionEl.textContent = `${(attentionScore * 100).toFixed(0)}%`;
   sceneEl.textContent = data.scene || "--";
-  objectEl.textContent = data.object || "--";
   actionEl.textContent = data.action || "--";
   intentEl.textContent = data.intent || "--";
-  confidenceEl.textContent =
-    `confidence ${(Number(data.confidence || 0) * 100).toFixed(0)}%`;
+  uiStateEl.textContent = data.show_ui ? "商品情報を表示" : "待機";
+  confidenceEl.textContent = `confidence ${(Number(data.confidence || 0) * 100).toFixed(0)}%`;
 
   evidenceEl.innerHTML = "";
   for (const item of (data.evidence || [])) {
@@ -113,13 +128,68 @@ function render(data) {
     evidenceEl.appendChild(li);
   }
 
-  if (data.suggested_ui?.show) {
-    overlay.classList.remove("hidden");
-    uiTitle.textContent = data.suggested_ui.title || "";
-    uiBody.textContent = data.suggested_ui.body || "";
+  updateFocusStability(data);
+
+  if (data.show_ui && sameProductCount >= 2) {
+    showOverlay(data.suggested_ui);
   } else {
-    overlay.classList.add("hidden");
+    hideOverlay();
   }
+}
+
+function updateFocusStability(data) {
+  const productId = data.product_id || "unknown";
+
+  if (data.attention && productId !== "unknown") {
+    if (productId === lastProductId) sameProductCount += 1;
+    else sameProductCount = 1;
+    lastProductId = productId;
+  } else {
+    sameProductCount = 0;
+    lastProductId = "";
+  }
+
+  if (data.attention && sameProductCount >= 1) focusMarker.classList.remove("hidden");
+  else focusMarker.classList.add("hidden");
+}
+
+function showOverlay(ui) {
+  if (!ui || !ui.show) return;
+
+  overlay.classList.remove("hidden");
+  uiTitle.textContent = ui.title || "";
+  uiSubtitle.textContent = ui.subtitle || "";
+  nutritionBasis.textContent = ui.nutritionBasis ? `（${ui.nutritionBasis}）` : "";
+
+  nutritionEl.innerHTML = "";
+  for (const [label, value] of (ui.nutrition || [])) {
+    const item = document.createElement("div");
+    item.className = "nutrition-item";
+    item.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>`;
+    nutritionEl.appendChild(item);
+  }
+
+  recipesEl.innerHTML = "";
+  for (const recipe of (ui.recipes || [])) {
+    const chip = document.createElement("span");
+    chip.textContent = recipe;
+    recipesEl.appendChild(chip);
+  }
+
+  uiTip.textContent = ui.tip || "";
+}
+
+function hideOverlay() {
+  overlay.classList.add("hidden");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 startButton.addEventListener("click", () => {

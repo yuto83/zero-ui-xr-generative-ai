@@ -59,37 +59,134 @@ video {
   margin-top: 3px;
 }
 
+.focus-marker {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 92px;
+  height: 92px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: 18px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.03), 0 0 28px rgba(150,210,255,.35);
+  pointer-events: none;
+  animation: focusPulse 1.8s ease-in-out infinite;
+}
+
+.focus-marker::before,
+.focus-marker::after,
+.focus-marker span::before,
+.focus-marker span::after {
+  content: "";
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-color: rgba(255,255,255,.9);
+}
+
+.focus-marker::before { left: -1px; top: -1px; border-left: 2px solid; border-top: 2px solid; border-radius: 10px 0 0 0; }
+.focus-marker::after { right: -1px; bottom: -1px; border-right: 2px solid; border-bottom: 2px solid; border-radius: 0 0 10px 0; }
+.focus-marker span::before { right: -1px; top: -1px; border-right: 2px solid; border-top: 2px solid; border-radius: 0 10px 0 0; }
+.focus-marker span::after { left: -1px; bottom: -1px; border-left: 2px solid; border-bottom: 2px solid; border-radius: 0 0 0 10px; }
+
+@keyframes focusPulse {
+  0%, 100% { opacity: .45; transform: translate(-50%, -50%) scale(.96); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 .overlay {
   position: absolute;
   left: 5%;
   right: 5%;
   bottom: 5%;
-  padding: 18px 20px;
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 18px;
-  background: rgba(9, 14, 25, .76);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  padding: 17px 19px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 20px;
+  background: rgba(8, 13, 24, .78);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 45px rgba(0,0,0,.4), 0 0 30px rgba(80,160,255,.12);
 }
 
 .hidden { display: none; }
 
 .overlay-label {
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: .18em;
   opacity: .65;
 }
 
 .overlay-title {
-  font-size: 23px;
+  font-size: 25px;
   font-weight: 700;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
-.overlay-body {
-  margin-top: 7px;
-  line-height: 1.55;
-  color: #dce6f6;
+.overlay-subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #b8c8dd;
+}
+
+.nutrition-heading, .recipe-heading {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: #e9f1ff;
+}
+
+.nutrition-heading small {
+  font-size: 9px;
+  opacity: .55;
+  letter-spacing: 0;
+}
+
+.nutrition {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.nutrition-item {
+  padding: 8px 9px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+}
+
+.nutrition-item span {
+  display: block;
+  font-size: 9px;
+  opacity: .62;
+}
+
+.nutrition-item strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.recipes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.recipes span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(120,180,255,.12);
+  border: 1px solid rgba(150,200,255,.18);
+  color: #dcecff;
+  font-size: 10px;
+}
+
+.overlay-tip {
+  margin-top: 9px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #aebed2;
 }
 
 .controls {
@@ -134,20 +231,20 @@ h2 {
   opacity: .7;
 }
 
-.grid {
+.focus-summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 15px;
 }
 
-.grid > div {
+.focus-summary > div {
   background: #151d2c;
   border-radius: 12px;
   padding: 12px;
 }
 
-.grid span, .evidence > span {
+.focus-summary span, .grid span, .evidence > span {
   display: block;
   font-size: 10px;
   letter-spacing: .15em;
@@ -155,9 +252,22 @@ h2 {
   margin-bottom: 5px;
 }
 
-.grid strong {
+.focus-summary strong, .grid strong {
   font-size: 14px;
   font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.grid > div {
+  background: #151d2c;
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .evidence {
@@ -178,5 +288,9 @@ h2 {
 @media (max-width: 600px) {
   main { padding: 10px; }
   .camera-card { aspect-ratio: 3 / 4; }
-  .grid { grid-template-columns: 1fr; }
+  .nutrition { grid-template-columns: 1fr 1fr; }
+  .focus-summary, .grid { grid-template-columns: 1fr; }
+  .overlay { left: 3%; right: 3%; bottom: 3%; padding: 14px; }
+  .overlay-title { font-size: 21px; }
+  .focus-marker { width: 78px; height: 78px; top: 35%; }
 }

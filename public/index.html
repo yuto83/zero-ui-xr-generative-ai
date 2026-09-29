@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zero UI XR - Generative AI</title>
+  <title>Zero UI XR - Shopping Assistant</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -15,13 +15,25 @@
       <div class="status" id="status">カメラ準備中…</div>
       <div class="hud">
         <div class="hud-title">ZERO UI XR</div>
-        <div class="hud-sub">Generative AI Situation Understanding</div>
+        <div class="hud-sub">AI Shopping Assistant</div>
+      </div>
+
+      <div id="focusMarker" class="focus-marker hidden">
+        <span></span>
       </div>
 
       <div id="overlay" class="overlay hidden">
-        <div class="overlay-label">AI SUGGESTION</div>
+        <div class="overlay-label">ZERO UI / SHOPPING SUPPORT</div>
         <div id="uiTitle" class="overlay-title"></div>
-        <div id="uiBody" class="overlay-body"></div>
+        <div id="uiSubtitle" class="overlay-subtitle"></div>
+
+        <div class="nutrition-heading">栄養情報 <small id="nutritionBasis"></small></div>
+        <div id="nutrition" class="nutrition"></div>
+
+        <div class="recipe-heading">作れる料理</div>
+        <div id="recipes" class="recipes"></div>
+
+        <div id="uiTip" class="overlay-tip"></div>
       </div>
     </section>
 
@@ -44,11 +56,16 @@
         <span id="confidence">--</span>
       </div>
 
+      <div class="focus-summary">
+        <div><span>注目商品</span><strong id="product">--</strong></div>
+        <div><span>注目度</span><strong id="attention">--</strong></div>
+      </div>
+
       <div class="grid">
         <div><span>SCENE</span><strong id="scene">--</strong></div>
-        <div><span>OBJECT</span><strong id="object">--</strong></div>
         <div><span>ACTION</span><strong id="action">--</strong></div>
         <div><span>INTENT</span><strong id="intent">--</strong></div>
+        <div><span>UI</span><strong id="uiState">--</strong></div>
       </div>
 
       <div class="evidence">

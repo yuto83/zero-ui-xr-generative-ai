@@ -1,83 +1,43 @@
-# Zero UI XR — Generative AI / GitHub + Vercel
+# Zero UI XR - Generative AI Shopping Assistant
 
-カメラ画像を生成AIに送り、生成AI自身に
-「何を見ているか」「何をしているか」「何をしようとしているか」
-を推定させるZero UI XRプロトタイプです。
+スーパーでの買い物を想定したZero UI XRプロトタイプです。
 
-## アーキテクチャ
+## 構成
 
-iPhone / PC Browser
-→ Camera
-→ `public/app.js`
-→ `/api/analyze`
-→ OpenAI Responses API
-→ JSON
-→ Zero UI overlay
+Camera → Browser → `/api/analyze` → OpenAI Responses API → Structured JSON → 商品情報UI
 
-この版では MediaPipe HandPose / TensorFlow.js による物体・手の認識は使用しません。
+OpenAIの画像入力とStructured Outputsを使い、カメラ画像から「どの商品に注目しているか」「何をしているか」「購入を検討している可能性があるか」を推定します。
 
-## GitHub + Vercelへの公開手順
+## 現在の対象商品
 
-### 1. GitHub
+- りんご
+- アボカド
+- 卵
 
-このフォルダの中身を新しいGitHubリポジトリへアップロードします。
+商品を背景として認識しただけではUIを表示せず、AIが商品への注目を推定し、同じ商品への注目が複数回連続して確認された場合に商品情報UIを表示します。
 
-例:
-`zero-ui-xr-generative-ai`
+## UIの内容
 
-### 2. Vercel
+- 商品名
+- 栄養価（可食部100gあたりの目安）
+- 作れる料理の例
+- 商品選びの補助コメント
 
-Vercelで「Add New Project」からGitHubリポジトリをImportします。
+栄養価はプロトタイプ用の静的な商品マスタから取得します。生成AIに数値を自由生成させないことで、表示値の揺れを抑えています。
 
-Build Commandは基本的に不要です。
-Framework PresetはOtherで構いません。
+## デプロイ
 
-### 3. Environment Variables
+VercelにGitHubリポジトリをImportし、Environment Variablesに以下を設定してください。
 
-VercelのProject Settings → Environment Variablesに以下を設定します。
+```text
+OPENAI_API_KEY=あなたのOpenAI APIキー
+OPENAI_MODEL=gpt-5-mini
+```
 
-`OPENAI_API_KEY`
-→ OpenAI APIキー
-
-`OPENAI_MODEL`
-→ `gpt-5-mini`
-
-APIキーはGitHubへ絶対にコミットしないでください。
-
-### 4. Deploy
-
-DeployするとHTTPSのURLが発行されます。
-
-例:
-`https://zero-ui-xr-generative-ai.vercel.app`
-
-このURLをiPhoneのSafariで開き、
-「カメラを開始」→カメラを許可
-で使用できます。
+`main`へのpush後、VercelのProduction Deploymentが更新されます。
 
 ## 注意
 
-カメラ画像は、AI解析のために `/api/analyze` を経由してOpenAI APIへ送信されます。
-
-現在は約1.5秒ごとに1枚の画像を解析します。
-実験時は「AI解析間隔」を1秒、1.5秒、2秒、3秒から選択できます。
-
-## APIキーについて
-
-APIキーはブラウザへ送信されません。
-Vercelのサーバー側FunctionでOpenAI APIを呼び出します。
-
-## 意図推定
-
-直前のAI推定結果を次の解析にも渡します。
-
-例:
-
-1. スーパーの商品棚を見ている
-2. 卵に注目している
-3. 卵を手に取っている
-4. パッケージを確認している
-5. 購入を検討している可能性
-
-これにより、単純な物体認識ではなく、
-時系列の状況変化を利用した意図推定を実験できます。
+- カメラ映像から視線を直接取得しているわけではありません。「注目」は画像内の商品位置・大きさ・行動・時間的な変化からのAI推定です。
+- 栄養価はプロトタイプ用の目安です。実際の商品パッケージの表示値を確認してください。
+- APIキーはGitHubへコミットしないでください。
